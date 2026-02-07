@@ -1,0 +1,113 @@
+apiVersion: edictum/v1
+kind: ContractBundle
+
+metadata:
+  name: fintech-trading-agent
+  description: >
+    Governance contracts for a trading compliance AI agent that assists
+    with account queries, trade execution, and regulatory reporting.
+
+defaults:
+  mode: enforce
+
+contracts:
+  # ─── TRADE CONTROL ───────────────────────────────────────────────────
+
+  - id: trade-size-limit
+    type: pre
+    tool: execute_trade
+    when:
+      all:
+        - args.quantity: { gt: 1000 }
+        - principal.claims.trade_approval: { not_equals: true }
+    then:
+      effect: deny
+      message: "Trades over 1,000 shares require manager approval."
+      tags: [trade-control, risk-management, sox]
+
+  # ─── ACCESS CONTROL ──────────────────────────────────────────────────
+
+  - id: account-access-control
+    type: pre
+    tool: query_account_data
+    when:
+      all:
+        - args.dataset: { in: [full_profile, transaction_history, risk_assessment] }
+        - principal.role: { not_in: [compliance_officer, senior_trader, risk_manager] }
+    then:
+      effect: deny
+      message: "Full account access requires compliance officer or senior trader role."
+      tags: [access-control, pii, sox]
+
+  - id: no-restricted-accounts
+    type: pre
+    tool: query_account_data
+    when:
+      args.account_id:
+        contains_any: [RESTRICTED, FROZEN]
+    then:
+      effect: deny
+      message: "Access to restricted/frozen accounts is blocked pending investigation."
+      tags: [access-control, sec-investigation, aml]
+
+  # ─── CHANGE CONTROL ──────────────────────────────────────────────────
+
+  - id: compliance-report-requires-ticket
+    type: pre
+    tool: generate_compliance_report
+    when:
+      principal.ticket_ref: { exists: false }
+    then:
+      effect: deny
+      message: "Compliance reports require an audit ticket reference."
+      tags: [change-control, sox, audit-trail]
+
+  # ─── OUTPUT GOVERNANCE ───────────────────────────────────────────────
+
+  # NOTE: Regex-based PII detection is a baseline. Production deployments
+  # should use ML-based PII scanners (Presidio, Phileas, etc.) behind
+  # the same postcondition contract interface.
+
+  - id: pii-in-output
+    type: post
+    tool: "*"
+    when:
+      output.text:
+        matches_any:
+          - '\b\d{3}-\d{2}-\d{4}\b'                                      # SSN
+          - '\bACC-\d{6,10}\b'                                            # Account number
+          - '\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'       # Email
+          - '\b(\+1[\s.-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}\b'       # US phone
+    then:
+      effect: warn
+      message: "Potential PII detected in output. Review and redact before use."
+      tags: [pii, sox, mifid-ii]
+
+  - id: pii-in-compliance-report
+    type: post
+    tool: generate_compliance_report
+    when:
+      output.text:
+        matches_any:
+          - '\b\d{3}-\d{2}-\d{4}\b'                                      # SSN
+          - '\bACC-\d{6,10}\b'                                            # Account number
+          - '\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'       # Email
+          - '\b(\+1[\s.-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}\b'       # US phone
+    then:
+      effect: warn
+      message: "PII detected in compliance report. This document MUST be reviewed before submission."
+      tags: [pii, sox, mifid-ii, regulatory-submission]
+
+  # ─── OPERATIONAL LIMITS ──────────────────────────────────────────────
+
+  - id: session-limits
+    type: session
+    limits:
+      max_tool_calls: 15
+      max_calls_per_tool:
+        execute_trade: 5
+        generate_compliance_report: 2
+    then:
+      effect: deny
+      message: "Session limit reached. Summarize findings and stop."
+      tags: [rate-limit, operational-safety]
