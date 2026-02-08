@@ -16,6 +16,10 @@ OpenTelemetry configuration and Grafana dashboard for Edictum-governed agents.
 3. **Console** — set `EDICTUM_OTEL_CONSOLE=1` (prints spans/metrics to terminal)
 4. **Disabled** — if nothing is set, OTel is silently skipped
 
+## OTLP exporter errors
+
+When `OTEL_EXPORTER_OTLP_ENDPOINT` is set but the endpoint is unreachable (wrong URL, auth failure, network issue), the OTel SDK logs warnings to stderr but does **not** crash the demo. This is by design -- the agent continues to run and governance still works, but telemetry data is silently dropped. If you see no data in Grafana, check stderr for OTLP export errors.
+
 ## Grafana dashboard
 
 Import `grafana/edictum-dashboard.json` into Grafana. Requires:

@@ -43,7 +43,9 @@ contracts:
     type: pre
     tool: escalate_ticket
     when:
-      args.reason: { exists: false }
+      any:
+        - args.reason: { exists: false }
+        - args.reason: { equals: "" }
     then:
       effect: deny
       message: "Escalation requires a documented reason."

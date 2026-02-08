@@ -182,6 +182,9 @@ def redact_pii(text: str) -> str:
     text = re.sub(r'\b\d{3}-\d{2}-\d{4}\b', '[SSN REDACTED]', text)
     text = re.sub(r'\bPAT-\d{4,8}\b', '[PATIENT-ID REDACTED]', text)
     text = re.sub(r'\b[A-Z][a-z]+\s[A-Z][a-z]+(?=,?\s*(?:age|DOB|born))', '[NAME REDACTED]', text)
+    text = re.sub(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', '[EMAIL REDACTED]', text)
+    text = re.sub(r'\b(\+1[\s.-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}\b', '[PHONE REDACTED]', text)
+    text = re.sub(r'\b(0[1-9]|1[0-2])/(0[1-9]|[12]\d|3[01])/\d{4}\b', '[DOB REDACTED]', text)
     return text
 
 

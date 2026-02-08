@@ -53,4 +53,13 @@ All demos require `OPENAI_API_KEY` in `.env`.
 - **OpenAI Agents SDK** output guardrail is side-effect only -- cannot redact PII before the LLM sees it
 - **CrewAI** is most expensive (~3x token usage) due to verbose prompt construction
 
+## Known Limitations
+
+| Framework | Limitation |
+|-----------|------------|
+| **OpenAI Agents SDK** | Output guardrail is side-effect only -- it can detect PII in tool output and log a warning, but cannot redact/modify the response before the LLM sees it. PII reaches the model context. |
+| **CrewAI** | ~3x token usage compared to other frameworks due to verbose internal prompt construction. The adapter works correctly, but costs scale accordingly. |
+| **Agno** | No token usage metrics exposed by the framework. Cost tracking is unavailable. |
+| **Semantic Kernel** | When building chat history for the LLM, filter out `AuthorRole.TOOL` messages to avoid duplicating tool results that SK already inlines. |
+
 See `FINDINGS.md` for detailed per-adapter integration notes, bugs found, and workarounds.
