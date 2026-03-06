@@ -87,7 +87,7 @@ def _configure_otlp(endpoint: str) -> str:
 
     temporality = os.environ.get("EDICTUM_OTEL_TEMPORALITY", "cumulative").strip().lower()
     if temporality not in {"delta", "cumulative"}:
-        temporality = "delta"
+        temporality = "cumulative"
 
     # Metrics
     from opentelemetry.sdk.metrics import (
@@ -100,22 +100,14 @@ def _configure_otlp(endpoint: str) -> str:
     )
     from opentelemetry.sdk.metrics.export import AggregationTemporality
 
+    t = AggregationTemporality.DELTA if temporality == "delta" else AggregationTemporality.CUMULATIVE
     preferred_temporality = {
-        SdkCounter: AggregationTemporality.DELTA
-        if temporality == "delta"
-        else AggregationTemporality.CUMULATIVE,
-        SdkUpDownCounter: AggregationTemporality.DELTA
-        if temporality == "delta"
-        else AggregationTemporality.CUMULATIVE,
-        SdkHistogram: AggregationTemporality.DELTA
-        if temporality == "delta"
-        else AggregationTemporality.CUMULATIVE,
-        SdkObservableCounter: AggregationTemporality.DELTA
-        if temporality == "delta"
-        else AggregationTemporality.CUMULATIVE,
-        SdkObservableUpDownCounter: AggregationTemporality.DELTA
-        if temporality == "delta"
-        else AggregationTemporality.CUMULATIVE,
+        SdkCounter: t,
+        SdkUpDownCounter: t,
+        SdkHistogram: t,
+        SdkObservableCounter: t,
+        SdkObservableUpDownCounter: t,
+        SdkObservableGauge: t,
     }
     metric_exporter = OTLPMetricExporter(
         endpoint=f"{endpoint}/v1/metrics",

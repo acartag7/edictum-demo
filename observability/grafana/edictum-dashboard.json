@@ -10,9 +10,9 @@
   "tags": ["edictum", "ai-agents", "governance"],
   "timezone": "browser",
   "schemaVersion": 39,
-  "version": 1,
+  "version": 4,
   "refresh": "10s",
-  "time": { "from": "now-15m", "to": "now" },
+  "time": { "from": "now-1h", "to": "now" },
   "panels": [
     {
       "id": 1,
@@ -55,7 +55,7 @@
       "title": "Denial Rate",
       "description": "Percentage of tool calls denied",
       "type": "gauge",
-      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 0 },
+      "gridPos": { "h": 8, "w": 4, "x": 12, "y": 0 },
       "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
       "fieldConfig": {
         "defaults": {
@@ -81,10 +81,30 @@
     },
     {
       "id": 3,
+      "title": "Total Calls",
+      "description": "Total governance-evaluated tool calls",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 4, "x": 16, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "fixedColor": "blue", "mode": "fixed" }
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum(edictum_calls_allowed_total{service_name=\"edictum-demo\"}) + sum(edictum_calls_denied_total{service_name=\"edictum-demo\"})",
+          "legendFormat": "Total",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 4,
       "title": "Denials by Tool",
       "description": "Which tools are being denied most",
       "type": "barchart",
-      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 0 },
+      "gridPos": { "h": 8, "w": 4, "x": 20, "y": 0 },
       "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
       "fieldConfig": {
         "defaults": {
@@ -100,52 +120,192 @@
       ]
     },
     {
-      "id": 4,
-      "title": "Recent Governance Traces",
-      "description": "Click a trace to see the full governance pipeline evaluation",
-      "type": "traces",
-      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 8 },
-      "datasource": { "type": "tempo", "uid": "${DS_TEMPO}" },
-      "targets": [
-        {
-          "queryType": "traceql",
-          "query": "{resource.service.name = \"edictum-demo\" && name =~ \"tool.execute.*\"}",
-          "limit": 20,
-          "refId": "A"
-        }
-      ]
-    },
-    {
       "id": 5,
-      "title": "Denied Traces Only",
-      "description": "Traces where governance denied the tool call",
-      "type": "traces",
-      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 18 },
-      "datasource": { "type": "tempo", "uid": "${DS_TEMPO}" },
+      "title": "Allowed by Tool",
+      "description": "Which tools are being used most (allowed calls)",
+      "type": "barchart",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 9 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "fixedColor": "#73BF69", "mode": "fixed" }
+        }
+      },
       "targets": [
         {
-          "queryType": "traceql",
-          "query": "{resource.service.name = \"edictum-demo\" && span.governance.action =~ \"denied|would_deny\"}",
-          "limit": 20,
+          "expr": "sum by (tool_name) (edictum_calls_allowed_total{service_name=\"edictum-demo\"})",
+          "legendFormat": "{{ tool_name }}",
           "refId": "A"
         }
       ]
     },
     {
       "id": 6,
-      "title": "Tool Execution Latency",
-      "description": "Time spent in governance + tool execution per span",
-      "type": "histogram",
-      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 18 },
-      "datasource": { "type": "tempo", "uid": "${DS_TEMPO}" },
+      "title": "Denied vs Allowed per Tool",
+      "description": "Side-by-side comparison of denied and allowed calls per tool",
+      "type": "barchart",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 9 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "options": {
+        "stacking": "normal",
+        "orientation": "horizontal"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Allowed" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "#73BF69", "mode": "fixed" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Denied" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "#F2495C", "mode": "fixed" } }]
+          }
+        ]
+      },
       "targets": [
         {
-          "queryType": "traceql",
-          "query": "{resource.service.name = \"edictum-demo\" && name =~ \"tool.execute.*\"} | select(duration)",
-          "limit": 50,
+          "expr": "sum by (tool_name) (edictum_calls_allowed_total{service_name=\"edictum-demo\"})",
+          "legendFormat": "Allowed",
+          "refId": "A"
+        },
+        {
+          "expr": "sum by (tool_name) (edictum_calls_denied_total{service_name=\"edictum-demo\"})",
+          "legendFormat": "Denied",
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Denial Rate per Tool",
+      "description": "Which tools have the highest denial rate",
+      "type": "barchart",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 9 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "color": { "fixedColor": "#FF9830", "mode": "fixed" }
+        }
+      },
+      "targets": [
+        {
+          "expr": "100 * sum by (tool_name) (edictum_calls_denied_total{service_name=\"edictum-demo\"}) / (sum by (tool_name) (edictum_calls_allowed_total{service_name=\"edictum-demo\"}) + sum by (tool_name) (edictum_calls_denied_total{service_name=\"edictum-demo\"}))",
+          "legendFormat": "{{ tool_name }}",
           "refId": "A"
         }
       ]
+    },
+    {
+      "id": 8,
+      "title": "Span Rate (from Traces)",
+      "description": "Governance span rate from Tempo — shows agent activity over time",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 18 },
+      "datasource": { "type": "tempo", "uid": "${DS_TEMPO}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "fixedColor": "#8AB8FF", "mode": "fixed" },
+          "custom": { "fillOpacity": 30, "lineWidth": 2, "drawStyle": "bars" }
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "tempo", "uid": "${DS_TEMPO}" },
+          "queryType": "traceql",
+          "query": "{rootServiceName=\"edictum-demo\"} | rate()",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Span Rate by Tool",
+      "description": "Trace rate grouped by span name — shows which tools are called most",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 18 },
+      "datasource": { "type": "tempo", "uid": "${DS_TEMPO}" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "fillOpacity": 20, "lineWidth": 2, "drawStyle": "bars", "stacking": { "mode": "normal" } }
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "tempo", "uid": "${DS_TEMPO}" },
+          "queryType": "traceql",
+          "query": "{rootServiceName=\"edictum-demo\" && name =~ \"tool.execute.*\"} | rate() by (name)",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Error Rate (Denied Spans)",
+      "description": "Rate of spans with ERROR status (denied tool calls)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 27 },
+      "datasource": { "type": "tempo", "uid": "${DS_TEMPO}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "fixedColor": "#F2495C", "mode": "fixed" },
+          "custom": { "fillOpacity": 30, "lineWidth": 2, "drawStyle": "bars" }
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "tempo", "uid": "${DS_TEMPO}" },
+          "queryType": "traceql",
+          "query": "{rootServiceName=\"edictum-demo\" && status = error} | rate()",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "title": "Span Duration (p50/p95/p99)",
+      "description": "Governance span duration percentiles from traces",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 27 },
+      "datasource": { "type": "tempo", "uid": "${DS_TEMPO}" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ns",
+          "custom": { "lineWidth": 2 }
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "tempo", "uid": "${DS_TEMPO}" },
+          "queryType": "traceql",
+          "query": "{rootServiceName=\"edictum-demo\" && name =~ \"tool.execute.*\"} | quantile_over_time(duration, 0.5)",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "tempo", "uid": "${DS_TEMPO}" },
+          "queryType": "traceql",
+          "query": "{rootServiceName=\"edictum-demo\" && name =~ \"tool.execute.*\"} | quantile_over_time(duration, 0.95)",
+          "refId": "B"
+        },
+        {
+          "datasource": { "type": "tempo", "uid": "${DS_TEMPO}" },
+          "queryType": "traceql",
+          "query": "{rootServiceName=\"edictum-demo\" && name =~ \"tool.execute.*\"} | quantile_over_time(duration, 0.99)",
+          "refId": "C"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "title": "Explore Traces",
+      "description": "Click to explore traces in detail",
+      "type": "text",
+      "gridPos": { "h": 4, "w": 24, "x": 0, "y": 36 },
+      "options": {
+        "mode": "markdown",
+        "content": "### Trace Drill-Down\n\nDashboard panels show aggregated metrics from traces. To inspect individual traces with full governance attributes:\n\n- **[All Traces](explore?schemaVersion=1&panes=%7B%22a%22:%7B%22datasource%22:%22grafanacloud-cartagenaarnold-traces%22,%22queries%22:%5B%7B%22refId%22:%22A%22,%22queryType%22:%22traceql%22,%22query%22:%22%7BrootServiceName%3D%5C%22edictum-demo%5C%22%7D%22%7D%5D%7D%7D)** — all governance spans\n- **[Queryless Explorer](explore/traces?mode=queryless)** — visual trace explorer with attribute filtering"
+      }
     }
   ],
   "templating": {
@@ -154,13 +314,13 @@
         "name": "DS_PROMETHEUS",
         "type": "datasource",
         "query": "prometheus",
-        "current": { "selected": true, "text": "grafanacloud-prom", "value": "grafanacloud-prom" }
+        "current": { "selected": true, "text": "grafanacloud-cartagenaarnold-prom", "value": "grafanacloud-cartagenaarnold-prom" }
       },
       {
         "name": "DS_TEMPO",
         "type": "datasource",
         "query": "tempo",
-        "current": { "selected": true, "text": "grafanacloud-traces", "value": "grafanacloud-traces" }
+        "current": { "selected": true, "text": "grafanacloud-cartagenaarnold-traces", "value": "grafanacloud-cartagenaarnold-traces" }
       }
     ]
   }
