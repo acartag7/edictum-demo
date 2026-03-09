@@ -3,7 +3,7 @@
 Full scenario demos, adversarial tests, benchmarks, and observability setup for
 [Edictum](https://github.com/acartag7/edictum) -- runtime contracts for AI agents.
 
-**Docs:** [docs.edictum.dev](https://docs.edictum.dev)
+**Docs:** [docs.edictum.ai](https://docs.edictum.ai)
 **PyPI:** [pypi.org/project/edictum](https://pypi.org/project/edictum/)
 
 ## What's here
@@ -137,6 +137,8 @@ edictum-demo/
 | `EDICTUM_URL` | edictum-console server URL (default: `http://localhost:8000`) |
 | `EDICTUM_ADMIN_EMAIL` | Console admin email for hot reload test (default: `admin@demo.test`) |
 | `EDICTUM_ADMIN_PASSWORD` | Console admin password for hot reload test (default: `edictum2026`) |
+
+> **Warning:** The default admin credentials above are for local demo/testing only. Never use default credentials in production. Always generate strong, unique passwords for any non-local deployment.
 | `EDICTUM_MODEL` | Override LLM model for DevOps/SDK demos |
 | `EDICTUM_OTEL_CONSOLE` | Set to `1` for console OTel output |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | OTLP endpoint for Grafana Cloud |
