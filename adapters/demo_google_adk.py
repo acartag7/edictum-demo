@@ -60,7 +60,7 @@ except ImportError:
     print("  pip install google-adk            # ADK runtime")
     print()
     print("If the adapter PR is still open, install edictum from the feature branch:")
-    print("  pip install git+https://github.com/acartag7/edictum@feat/google-adk-adapter")
+    print("  pip install git+https://github.com/edictum-ai/edictum@feat/google-adk-adapter")
     sys.exit(1)
 
 try:

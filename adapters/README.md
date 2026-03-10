@@ -88,7 +88,7 @@ Every demo exercises the same 17 scenarios covering:
 | **OpenAI Agents SDK** | Output guardrail is side-effect only -- cannot redact PII before the LLM sees it |
 | **CrewAI** | ~3x token usage due to verbose internal prompt construction |
 | **Agno** | No token usage metrics exposed by the framework |
-| **Agno / CrewAI** | Console mode (`--console`) fails due to cross-event-loop bug ([#67](https://github.com/acartag7/edictum/issues/67)) -- sync frameworks create their own event loops, breaking the async httpx client from `Edictum.from_server()` |
+| **Agno / CrewAI** | Console mode (`--console`) fails due to cross-event-loop bug ([#67](https://github.com/edictum-ai/edictum/issues/67)) -- sync frameworks create their own event loops, breaking the async httpx client from `Edictum.from_server()` |
 | **Claude Agent SDK** | Must run in Docker container (nested Claude Code session detection) |
 | **Google ADK** | Free tier rate limits vary by model; use `gemini-3.1-flash-lite-preview` |
 

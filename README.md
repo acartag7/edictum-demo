@@ -1,7 +1,7 @@
 # Edictum Demo Repository
 
 Full scenario demos, adversarial tests, benchmarks, and observability setup for
-[Edictum](https://github.com/acartag7/edictum) -- runtime contracts for AI agents.
+[Edictum](https://github.com/edictum-ai/edictum) -- runtime contracts for AI agents.
 
 **Docs:** [docs.edictum.ai](https://docs.edictum.ai)
 **PyPI:** [pypi.org/project/edictum](https://pypi.org/project/edictum/)

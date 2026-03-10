@@ -11,7 +11,7 @@ Usage:
     python pharma_agent.py
     python pharma_agent.py --role researcher        # gets denied on patient data
     python pharma_agent.py --role pharmacovigilance  # full access
-    python pharma_agent.py --observe                 # shadow mode, nothing blocked
+    python pharma_agent.py --observe                 # observe mode, nothing denied
 """
 
 from __future__ import annotations
