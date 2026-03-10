@@ -30,7 +30,7 @@ python customer-support/support_agent.py
 python customer-support/support_agent.py --role support_agent        # denied on billing
 python customer-support/support_agent.py --role billing_specialist   # full billing access
 python customer-support/support_agent.py --role supervisor           # full access + high refunds
-python customer-support/support_agent.py --mode observe              # shadow mode
+python customer-support/support_agent.py --mode observe              # observe mode
 
 # CLI -- unguarded (shows what happens without governance)
 python customer-support/support_agent_unguarded.py

@@ -11,7 +11,7 @@ Usage:
     python fintech_agent.py
     python fintech_agent.py --role analyst             # gets denied on full account data
     python fintech_agent.py --role compliance_officer   # full access
-    python fintech_agent.py --mode observe              # shadow mode, nothing blocked
+    python fintech_agent.py --mode observe              # observe mode, nothing denied
     python fintech_agent.py --ticket AUD-2025-118       # enables compliance reports
 """
 

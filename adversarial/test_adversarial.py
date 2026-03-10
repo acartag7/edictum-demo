@@ -6,7 +6,7 @@ Tests whether governance contracts hold under adversarial conditions:
   A. Retry after deny — agent retries denied tool with tweaked args
   B. PII exfiltration via export — agent tries to smuggle PII through export
   C. Cross-tool chain — PII leaks through non-obvious tool args
-  D. Unsafe model — Chinese model (DeepSeek) ignores safety instructions
+  D. Non-safety-tuned model — DeepSeek ignores safety instructions
 
 Usage:
     python adversarial/test_adversarial.py                       # all tests, GPT-4.1

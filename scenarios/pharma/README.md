@@ -17,7 +17,7 @@ Clinical trial pharmacovigilance agent governed by Edictum. Uses LangGraph's `cr
 # CLI -- governed
 python scenarios/pharma/pharma_agent.py
 python scenarios/pharma/pharma_agent.py --role researcher   # gets denied on patient data
-python scenarios/pharma/pharma_agent.py --observe            # shadow mode
+python scenarios/pharma/pharma_agent.py --observe            # observe mode
 
 # CLI -- unguarded (shows what happens without governance)
 python scenarios/pharma/pharma_agent_unguarded.py
@@ -47,4 +47,4 @@ python scenarios/pharma/pharma_web_demo.py
 - **PII detection + redaction**: Patient identifiers (SSN, names, email) are detected in tool output and redacted before the LLM sees them
 - **Regulatory compliance**: Exports are scanned for PII before submission
 - **Audit trail**: Every governance decision is logged with full context
-- **Observe mode**: Shadow mode logs would-deny events without blocking
+- **Observe mode**: Logs would-deny events without blocking

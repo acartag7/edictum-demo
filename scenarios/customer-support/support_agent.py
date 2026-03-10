@@ -12,7 +12,7 @@ Usage:
     python support_agent.py --role support_agent        # gets denied on billing data
     python support_agent.py --role billing_specialist    # full billing access
     python support_agent.py --role supervisor            # full access + high refunds
-    python support_agent.py --mode observe               # shadow mode, nothing blocked
+    python support_agent.py --mode observe               # observe mode, nothing denied
 """
 
 from __future__ import annotations
